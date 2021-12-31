@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: migvalidator
+Version: 1.0
+Summary: Apache Hive and MariaDB(MySQL) conversion library
+Home-page: UNKNOWN
+Author: Gyojun An
+Author-email: sencom1028@gmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.0
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+# migvalidator
+
