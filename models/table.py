@@ -20,19 +20,22 @@ class Table:
             self,
             name: str,
             sender: 'BaseConnectorMeta',
-            columns: List[str] = list("*"),
+            pk: List[str] = None,
+            columns: List[str] = ['*'],
     ) -> None:
         """
         사용자가 정의하는 테이블 클래스
 
         :param name: 테이블명
         :param sender: 'hive' | 'mariadb'
+        :param pk:
         :param columns: 조회할 대상 컬럼
         """
         self._name = name
         self._sender = sender
         self._columns = columns
-        self._where = list()
+        self._where = ['1 = 1']
+        self._pk = pk
 
     @property
     def name(self) -> str:
@@ -41,6 +44,10 @@ class Table:
     @property
     def sender(self) -> str:
         return self._sender
+
+    @property
+    def pk(self) -> str:
+        return self._pk
 
     @property
     def columns(self) -> List[str]:
@@ -77,6 +84,9 @@ class Column:
 
     @classmethod
     def parse(cls, column_type: str) -> Tuple[str, Tuple[int, Optional[int]]]:
+        if column_type is None:
+            return None, None
+
         result = column_type.split('(')
         if len(result) == 2:
             option = result[1].split(',')
@@ -116,27 +126,33 @@ class ColumnPair:
                source: List[Column],
                target: List[Column],
                pair_list: List['ColumnPair']) -> Tuple[List[Column], List[Column], Dict[str, bool]]:
+        def list_to_dict(cols: List[Column]):
+            dict = {}
+            for col in cols:
+                dict[col.name] = col
+            return dict
+
         tmp = {}
         # source, target에 공통으로 존재하는 컬럼명
         dup = {}
         source_list = []
         target_list = []
-        for col in source:
-            tmp[col.name] = True
+        source_dict = list_to_dict(source)
+        target_dict = list_to_dict(target)
 
         for col in target:
             # source에 target의 colname이 있으면
-            if col.name in tmp:
+            if col.name in source_dict:
                 source_list.append(col)
                 target_list.append(col)
                 dup[col.name] = True
 
         if pair_list is not None:
             # pair_list중 source 컬럼명들과 일치하는것만 필터링
-            for pair in [p for p in pair_list if p.source in tmp]:
+            for pair in [p for p in pair_list if p.source.name in source_dict]:
                 # target 컬럼명이 source 컬럼명들과 불일치하는것들 추가
-                if pair.target not in tmp:
-                    source_list.append(pair.source)
-                    target_list.append(pair.target)
+                if pair.target.name not in source_dict:
+                    source_list.append(source_dict[pair.source.name])
+                    target_list.append(target_dict[pair.target.name])
 
         return source_list, target_list, dup

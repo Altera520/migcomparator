@@ -11,7 +11,7 @@ import pandas as pd
 
 
 class DataSourceTable:
-    col_pattern = re.compile('[a-zA-Z0-9]]*')
+    col_pattern = re.compile('[a-zA-Z0-9_]*')
 
     def __init__(
             self,
@@ -24,7 +24,7 @@ class DataSourceTable:
         """
         self._table = table
         self._where = table.mkstring_where()
-        self._primary_key, self._columns = DataSourceTable.parse(self)
+        self._primary_key, self._columns = DataSourceTable.parse(self, table.pk)
 
     @property
     def name(self):
@@ -68,8 +68,7 @@ class DataSourceTable:
         query = strip_margin(f"""
                 | select count(*)
                 |   from {escape(self.name)}
-                |  where 1 = 1 
-                |    and {self.where} 
+                |  where {self.where} 
                 """)
         return query
 
@@ -89,17 +88,17 @@ class DataSourceTable:
             return strip_margin(f"""
                     | select {', '.join(map(escape, cols))}
                     |   from {escape(self.name)}
-                    |  where 1 = 1 
-                    |    and {self.where} 
+                    |  where {self.where} 
                     """)
 
         df = TypeConverter.convert_type(pd.DataFrame(select_inner(self)), columns, self.sender)
         return df
 
     @classmethod
-    def parse(cls, table: 'DataSourceTable') -> Tuple[List[Column], List[Column]]:
+    def parse(cls, table: 'DataSourceTable', pk: List[str] = None) -> Tuple[List[Column], List[Column]]:
         """
         describe 쿼리를 통해 테이블 컬럼별 정보 정형화
+        :param pk:
         :param table:
         :return:
         """
@@ -113,6 +112,15 @@ class DataSourceTable:
         temp = {}
         for column in table._table.columns:
             temp[column] = None
+
+        # Hive 테이블은 PK가 없으므로 명시적으로 기입해야한다.
+        if pk is not None:
+            pk_dict = {}
+            for colname in pk:
+                pk_dict[colname] = 'PRI'
+            for row in desc_raw_result:
+                colname = row[0]
+                row.append(pk_dict[colname] if colname in pk_dict else '')
 
         for row in desc_raw_result:
             colname = row[0]
@@ -128,19 +136,3 @@ class DataSourceTable:
                 # column name, column type
                 field.append(Column(colname, row[1]))
         return result['primary_key'], result['columns']
-
-
-class HiveTable(DataSourceTable):
-    def __init__(
-            self,
-            table: 'Table'
-    ) -> None:
-        super(table)
-
-
-class MariadbTable(DataSourceTable):
-    def __init__(
-            self,
-            table: 'Table'
-    ) -> None:
-        super(table)

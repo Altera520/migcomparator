@@ -20,19 +20,22 @@ class Table:
             self,
             name: str,
             sender: 'BaseConnectorMeta',
-            columns: List[str] = list("*"),
+            pk: List[str] = None,
+            columns: List[str] = ['*'],
     ) -> None:
         """
         사용자가 정의하는 테이블 클래스
 
         :param name: 테이블명
         :param sender: 'hive' | 'mariadb'
+        :param pk:
         :param columns: 조회할 대상 컬럼
         """
         self._name = name
         self._sender = sender
         self._columns = columns
         self._where = list()
+        self._pk = pk
 
     @property
     def name(self) -> str:
@@ -41,6 +44,10 @@ class Table:
     @property
     def sender(self) -> str:
         return self._sender
+
+    @property
+    def pk(self) -> str:
+        return self._pk
 
     @property
     def columns(self) -> List[str]:

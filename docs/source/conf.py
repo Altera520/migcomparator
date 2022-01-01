@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'data_inspector'
+project = 'migvalidator'
 copyright = '2021, Gyojun An'
 author = 'Gyojun An'
 

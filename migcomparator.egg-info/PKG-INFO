@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
-Name: migvalidator
-Version: 0.0.1
+Name: migcomparator
+Version: 0.0.2
 Summary: Apache Hive and MariaDB(MySQL) compare library
 Home-page: UNKNOWN
 Author: Gyojun An

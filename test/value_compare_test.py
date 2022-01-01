@@ -4,30 +4,40 @@ from unittest import TestCase, main
 
 from models.validation_result import PairResult
 from models.pandas_validator import PandasValidator
-from models.table import Table
+from models.table import Table, ColumnPair
 from query_sender.connector import MariadbConnector
 
 
 class ValueCompareTest(TestCase):
 
-    def test_value_compare(self):
+    def test_value_compare_rdb_to_rdb(self):
         # given
         sender = MariadbConnector(
             host='localhost',
             port=3307,
             user='scott',
             password='tiger',
-            database='maasbi'
+            database='temporary'
         )
-        source = Table(name='dw_vn_prct_bs', sender=sender)\
-            .where("date_format(etl_cre_dtm, '%Y%m%d') = '20210714'")
-
-        target = Table(name='dw_vn_prct_bs', sender=sender) \
-            .where("date_format(etl_cre_dtm, '%Y%m%d') = '20210714'")
+        source = Table(name='mock_1', sender=sender, columns=['vin', 'color', 'num'])
+        target = Table(name='mock_3', sender=sender, columns=['vin', 'color', 'numb'])
 
         # when & then
-        assert PandasValidator.count_compare(source=source, target=target) \
-               == PairResult(123, 123)
+        single_result = PandasValidator.value_compare(
+            source=source,
+            target=target,
+            # on은 join대상의 컬럼을 명시적으로 지정, 이름이 같다면 생략가능
+            on=[ColumnPair(source='vin', target='vin')],
+            colpair=[
+                ColumnPair(source='car_make', target='car_mk'),
+                ColumnPair(source='car_model_year', target='car_model_yyyy'),
+                ColumnPair(source='num', target='numb'),
+            ])
+
+        print(single_result.result)
+        cell = single_result.result.loc[0, 'num,numb']
+
+        assert cell == [57.064, 58.064]
 
 
 if __name__ == '__main__':

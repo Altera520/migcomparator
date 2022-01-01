@@ -1,4 +1,3 @@
-LICENSE.txt
 README.md
 pyproject.toml
 setup.py
@@ -8,11 +7,11 @@ common/stringutils.py
 config/__init__.py
 config/pd_spec_hive.py
 config/pd_spec_mariadb.py
-migvalidator.egg-info/PKG-INFO
-migvalidator.egg-info/SOURCES.txt
-migvalidator.egg-info/dependency_links.txt
-migvalidator.egg-info/requires.txt
-migvalidator.egg-info/top_level.txt
+migcomparator.egg-info/PKG-INFO
+migcomparator.egg-info/SOURCES.txt
+migcomparator.egg-info/dependency_links.txt
+migcomparator.egg-info/requires.txt
+migcomparator.egg-info/top_level.txt
 models/__init__.py
 models/base_validator.py
 models/datasource_table.py

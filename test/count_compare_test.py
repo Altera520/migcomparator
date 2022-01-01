@@ -10,24 +10,24 @@ from query_sender.connector import MariadbConnector
 
 class CountCompareTest(TestCase):
 
-    def test_count(self):
+    def test_count_rdb_to_rdb(self):
         # given
         sender = MariadbConnector(
             host='localhost',
             port=3307,
             user='scott',
             password='tiger',
-            database='maasbi'
+            database='temporary'
         )
-        source = Table(name='dw_vn_prct_bs', sender=sender)\
-            .where("date_format(etl_cre_dtm, '%Y%m%d') = '20210714'")
+        source = Table(name='mock_1', sender=sender)\
+            #.where("date_format(created_at, '%Y%m%d') = '20210714'")
 
-        target = Table(name='dw_vn_prct_bs', sender=sender) \
-            .where("date_format(etl_cre_dtm, '%Y%m%d') = '20210714'")
+        target = Table(name='mock_2', sender=sender) \
+            #.where("date_format(created_at, '%Y%m%d') = '20210714'")
 
         # when & then
         assert PandasValidator.count_compare(source=source, target=target) \
-               == PairResult(123, 123, True)
+               == PairResult(1000, 850, False)
 
 
 if __name__ == '__main__':

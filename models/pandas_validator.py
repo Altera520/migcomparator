@@ -1,8 +1,10 @@
 from typing import List
 
+import numpy as np
 import pandas as pd
 
 from common.commonutils import elapsed_time
+from config.config import CONFIG
 from models.base_validator import ValidatorMeta
 from models.table import Table, ColumnPair, Column
 from models.validation_result import PairResult, SingleResult
@@ -15,6 +17,18 @@ INDICATOR_MAP = {
     SOURCE: 'left_only',
     TARGET: 'right_only'
 }
+
+
+def pandas_config():
+    """
+    pandas config 적용
+    :return:
+    """
+    for key, value in CONFIG['pandas'].items():
+        pd.set_option(key, value)
+
+
+pandas_config()
 
 
 class PandasValidator(ValidatorMeta):
@@ -87,9 +101,10 @@ class PandasValidator(ValidatorMeta):
 
     @classmethod
     @elapsed_time("value compare")
-    def value_compare(cls, source: 'Table', target: 'Table', colpair: 'ColumnPair' = None) -> SingleResult:
+    def value_compare(cls, source: 'Table', target: 'Table', on: List['ColumnPair'] = None, colpair: List['ColumnPair'] = None) -> SingleResult:
         """
         테이블의 모든값 비교
+        :param on:
         :param source:
         :param target:
         :param colpair:
@@ -124,8 +139,8 @@ class PandasValidator(ValidatorMeta):
             pd.merge(df[SOURCE],
                      df[TARGET],
                      how='inner',
-                     left_on=Column.flat(pk[SOURCE]),
-                     right_on=Column.flat(pk[TARGET]),
+                     left_on=Column.flat(pk[SOURCE] if on is None else [pair.source for pair in on]),
+                     right_on=Column.flat(pk[TARGET] if on is None else [pair.target for pair in on]),
                      indicator=INDICATOR)
 
         pk_names = [pk_name for pk_name in Column.flat(pk[SOURCE])]
@@ -134,14 +149,15 @@ class PandasValidator(ValidatorMeta):
         result_df.columns = [','.join([pk_name, pk[TARGET][i].name]) for i, pk_name in enumerate(pk_names)]
         match = True
         for col_no, _ in enumerate(col[SOURCE]):
-            # source와 target에 colname이 공통으로 존재하면 suffix가 붙고,
-            # 공통이 아니면 suffix가 안붙는다.
+            # source와 target에 colname이 공통으로 존재하면 suffix가 붙고, 공통이 아니면 suffix가 안붙는다.
             colname = lambda which, idx: \
                 (col[which][idx].name + suffix[which]) \
                 if col[which][idx].name in dup \
                 else col[which][idx].name
 
             # pandas series를 numpy로 변환
+            # np.nan == np.nan은 False이므로 None으로 replace 수행
+            inner_df = inner_df.fillna(np.nan).replace([np.nan], [None])
             np_arr = [inner_df[colname(_, col_no)].to_numpy() for _ in PAIR]
             # bool list
             compare_result = np_arr[SOURCE] == np_arr[TARGET]
@@ -149,7 +165,7 @@ class PandasValidator(ValidatorMeta):
 
             row = []
             for row_no, result in enumerate(compare_result):
-                # True면 NaN
+                # True면 None
                 if result:
                     row.append(None)
                 # False면 [source value, target value]
@@ -159,7 +175,9 @@ class PandasValidator(ValidatorMeta):
                     row.append(value_pair)
 
             result_df = \
-                pd.concat([result_df,
-                           pd.Series(row, name=','.join([col[_][col_no].name for _ in PAIR]))], axis=1)
+                pd.concat([
+                    result_df,
+                    pd.Series(row, name=','.join([col[_][col_no].name for _ in PAIR]))
+                ], axis=1)
 
         return SingleResult(result_df, match)
