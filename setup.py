@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='migcomparator',
-    version='0.0.2',
+    version='1.0.3',
     author='Gyojun An',
     author_email='sencom1028@gmail.com',
     url='https://github.com/Altera520',
