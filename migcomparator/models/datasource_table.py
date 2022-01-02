@@ -3,15 +3,15 @@ from typing import List, Callable, Tuple
 
 from pandas import DataFrame
 
-from migcomparator.common import EMPTY, strip_margin, escape
+from migcomparator.common.stringutils import EMPTY, strip_margin, escape
 from migcomparator.models.table import Table, Column
 from migcomparator.models.typeconverter import TypeConverter
-from migcomparator.query_sender import sendquery
+from migcomparator.query_sender.decorator import sendquery
 import pandas as pd
 
 
 class DataSourceTable:
-    col_pattern = re.compile('[a-zA-Z0-9]]*')
+    col_pattern = re.compile('[a-zA-Z0-9_]*')
 
     def __init__(
             self,
@@ -68,8 +68,7 @@ class DataSourceTable:
         query = strip_margin(f"""
                 | select count(*)
                 |   from {escape(self.name)}
-                |  where 1 = 1 
-                |    and {self.where} 
+                |  where {self.where} 
                 """)
         return query
 
@@ -89,8 +88,7 @@ class DataSourceTable:
             return strip_margin(f"""
                     | select {', '.join(map(escape, cols))}
                     |   from {escape(self.name)}
-                    |  where 1 = 1 
-                    |    and {self.where} 
+                    |  where {self.where} 
                     """)
 
         df = TypeConverter.convert_type(pd.DataFrame(select_inner(self)), columns, self.sender)

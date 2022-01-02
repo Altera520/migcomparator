@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from typing import TYPE_CHECKING
 
-from migcomparator.models import DataSourceTable
+from migcomparator.models.datasource_table import DataSourceTable
 from migcomparator.models.table import ColumnPair
-from migcomparator.models import ValidationResult, SingleResult
+from migcomparator.models.validation_result import ValidationResult, SingleResult
 
 if TYPE_CHECKING:
     from migcomparator.models.table import Table

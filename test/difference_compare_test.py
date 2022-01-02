@@ -2,10 +2,9 @@
 
 from unittest import TestCase, main
 
-from models.validation_result import PairResult
-from models.pandas_validator import PandasValidator
-from models.table import Table
-from query_sender.connector import MariadbConnector
+from migcomparator.models.pandas_validator import PandasValidator
+from migcomparator.models.table import Table
+from migcomparator.query_sender.connector import MariadbConnector
 
 
 class DifferenceCompareTest(TestCase):

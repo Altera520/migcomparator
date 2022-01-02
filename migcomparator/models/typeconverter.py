@@ -6,7 +6,7 @@ from pandas import DataFrame
 from migcomparator.config.pd_spec_hive import type_map as hive_map
 from migcomparator.config.pd_spec_mariadb import type_map as mariadb_map
 from migcomparator.models.table import Column
-from migcomparator.query_sender import MariadbConnector, HiveConnector, BaseConnectorMeta
+from migcomparator.query_sender.connector import MariadbConnector, HiveConnector, BaseConnectorMeta
 
 
 class TypeConverter:

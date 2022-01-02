@@ -2,10 +2,9 @@
 
 from unittest import TestCase, main
 
-from models.validation_result import PairResult
-from models.pandas_validator import PandasValidator
-from models.table import Table, ColumnPair
-from query_sender.connector import MariadbConnector
+from migcomparator.models.pandas_validator import PandasValidator
+from migcomparator.models.table import Table, ColumnPair
+from migcomparator.query_sender.connector import MariadbConnector
 
 
 class ValueCompareTest(TestCase):
@@ -34,9 +33,7 @@ class ValueCompareTest(TestCase):
                 ColumnPair(source='num', target='numb'),
             ])
 
-        print(single_result.result)
         cell = single_result.result.loc[0, 'num,numb']
-
         assert cell == [57.064, 58.064]
 
 

@@ -9,6 +9,7 @@ setup(
     version='0.0.2',
     author='Gyojun An',
     author_email='sencom1028@gmail.com',
+    url='https://github.com/Altera520',
     description='Apache Hive and MariaDB(MySQL) compare library',
     long_description=long_description,
     long_description_content_type='text/markdown',
