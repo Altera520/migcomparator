@@ -1,17 +1,26 @@
 # migcomparator
 
+[![PyPI version](https://badge.fury.io/py/migcomparator.svg)](https://badge.fury.io/py/migcomparator)
+[![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
+
 > Apache Hive와 MariaDB(or MySQL)에 위치한 테이블의 데이터를 Pandas를 통해 비교해주는 라이브러리입니다. 
 
-## TOC
+- [Install](#install)
+- [Basic Usage](#basic-usage)
+  - [테이블간의 데이터 건수 비교](#테이블간의-데이터-건수-비교)
+  - [테이블간의 대칭차집합](#테이블간의-대칭차집합)
+  - [테이블간의 불일치 데이터 추출](#테이블간의-불일치-데이터-추출)
+- [User Component](#User-Component)
+  - [Table](#table)
+  - [ColumnPair](#columnpair)
+  - [Connector](#connector)
+  - [Validator](#validator)
 
-- [Basic Usage]()
-  - [테이블간의 건수 비교]()
-  - [테이블간의 대칭차집합]()
-  - [테이블간의 불일치 데이터 추출]()
-- [User Component]()
-  - [Table]()
-  - [Connector]()
-  - [Validator]()
+## Install
+
+```bash
+pip install migcomparator
+```
 
 ## Basic usage
 
@@ -237,6 +246,10 @@ hive_sender = \
         )
 ```
 
+
+
+---
+
 ### Table
 
 ```python
@@ -250,7 +263,9 @@ target = Table(name='mock_2', sender=hive_sender, pk=['vin']) \
             .where("date_format(created_at, 'yyyyMMdd') = '20220101'")
 ```
 
-> _\_init__(self, name: str, sender: BaseConnectorMeta, pk: List[str]): Table
+```python
+__init__(self, name: str, sender: BaseConnectorMeta, pk: List[str]): Table
+```
 
 - **name** 
   - DataSource에 위치한 테이블명
@@ -259,10 +274,14 @@ target = Table(name='mock_2', sender=hive_sender, pk=['vin']) \
 - **pk**
   - Hive에 위치한 테이블의 경우 pk를 명시적으로 기입
 
-> where(self, clause: str): Table
+```python
+where(self, clause: str): Table
+```
 
 - **clause**
   - 테이블에서 데이터를 필터링하기위한 where 구문
+
+---
 
 ### ColumnPair
 
@@ -272,7 +291,9 @@ from migcomparator.models.table import ColumnPair
 colpair = ColumnPair(source='car_model_year', target='car_model_yyyy')
 ```
 
-> _\_init__(self, source: str, target: str): Table
+```python
+__init__(self, source: str, target: str): Table
+```
  
 비교하고자 하는 테이블간의 컬렴밍이 다른경우 컬럼명을 매치시키기 위해 사용
 - **source**
@@ -280,21 +301,27 @@ colpair = ColumnPair(source='car_model_year', target='car_model_yyyy')
 - **target**
   - target 테이블의 컬럼명
 
+---
+
 ### Validator
 
-- `PandasValidator`: 
+- `PandasValidator` 
   - DataSource에 위치한 데이터를 라이브러리가 설치된 단일머신으로 들고와 비교를 수행하는 Validator (소규모 데이터셋에 적합)
 
 #### 데이터 건수 비교
 
->count_compare(cls, source: Table, target: Table): PairResult
+```python
+count_compare(cls, source: Table, target: Table): PairResult
+```
 
 source와 target에 비교대상 `Table` 객체를 인자로 전달하여, 두 테이블간의 데이터 count 결과반환
 
 
 #### 대칭차집합 비교
 
->difference_compare(cls, source: Table, target: Table, colpair: List[ColumnPair] = None): PairResult
+```python
+difference_compare(cls, source: Table, target: Table, colpair: List[ColumnPair] = None): PairResult
+```
 
 source와 target에 비교대상 `Table` 객체를 인자로 전달하여, full-outer join 수행후,
 각 테이블에 존재하지 않는 primary key를 반환
@@ -305,7 +332,10 @@ source와 target에 비교대상 `Table` 객체를 인자로 전달하여, full-
 
 #### 테이블간의 불일치 데이터 추출
 
->value_compare(cls, source: Table, target: Table, on: List[ColumnPair] = None, colpair: List[ColumnPair] = None): SingleResult
+```python
+value_compare(cls, source: Table, target: Table, on: List[ColumnPair] = None, colpair: List[ColumnPair] = None): SingleResult
+```
+
 
 source와 target에 비교대상 `Table` 객체를 인자로 전달하여, inner join후, 테이블의 모든 컬럼들을 비교하여 불일치하는 데이터 추출
 
